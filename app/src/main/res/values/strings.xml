@@ -1,6 +1,10 @@
 <resources>
 
     <string name="app_name">Android TF</string>
-    <string name="btn_invoke_function">Invoke Function</string>
+    <string name="btn_download">Download Model [SDK]</string>
+    <string name="btn_read">Read Model [NDK]</string>
+    <string name="last_update_none">Last update at: -</string>
+    <string name="last_update_value">Last update at: %1$s</string>
+    <string name="toast_empty_model">Empty or unavailable model</string>
 
 </resources>

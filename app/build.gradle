@@ -19,11 +19,11 @@ model {
             }
         }
         ndk {
-            moduleName "ResonanceAI"
+            moduleName "tensorflow"
             toolchain "clang"
             toolchainVersion "3.5"
-            ldLibs.add("log")
-            stl "stlport_static"
+            stl = "c++_static"
+            ldLibs.addAll(["log", "android"])
         }
     }
 }

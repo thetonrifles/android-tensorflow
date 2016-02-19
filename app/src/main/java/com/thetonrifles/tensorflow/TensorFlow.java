@@ -3,9 +3,9 @@ package com.thetonrifles.tensorflow;
 public class TensorFlow {
 
     static {
-        System.loadLibrary( "ResonanceAI" );
+        System.loadLibrary( "tensorflow" );
     }
 
-    public native void helloLog(String logThis);
+    public native String loadModel(String filepath);
 
 }
