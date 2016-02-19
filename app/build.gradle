@@ -19,11 +19,11 @@ model {
             }
         }
         ndk {
-            moduleName "tensorflow"
+            moduleName "tensorflow_jni"
             toolchain "clang"
             toolchainVersion "3.5"
             stl = "c++_static"
-            ldLibs.addAll(["log", "android"])
+            ldLibs.addAll(["log", "android", "atomic"])
         }
     }
 }
