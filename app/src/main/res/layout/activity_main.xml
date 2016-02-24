@@ -31,7 +31,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
         </RelativeLayout>
 
@@ -39,9 +39,9 @@
             android:id="@+id/btn_read"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:padding="16dp"
-            android:text="@string/btn_read"
-            android:enabled="false" />
+            android:text="@string/btn_read" />
 
     </LinearLayout>
 

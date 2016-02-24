@@ -3,8 +3,9 @@
     <string name="app_name">Android TF</string>
     <string name="btn_download">Download Model [SDK]</string>
     <string name="btn_read">Read Model [NDK]</string>
-    <string name="last_update_none">Last update at: -</string>
-    <string name="last_update_value">Last update at: %1$s</string>
+    <string name="last_update_none">Last update: -</string>
+    <string name="last_update_value">Last update: %1$s</string>
     <string name="toast_empty_model">Empty or unavailable model</string>
+    <string name="toast_output_sum">%1$f x %2$f = %3$f</string>
 
 </resources>

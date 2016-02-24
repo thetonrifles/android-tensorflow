@@ -12,8 +12,8 @@ extern "C" {
 #define TENSORFLOW_METHOD(METHOD_NAME) \
   Java_com_thetonrifles_tensorflow_TensorFlow_##METHOD_NAME  // NOLINT
 
-JNIEXPORT jstring JNICALL TENSORFLOW_METHOD(loadModel)(
-        JNIEnv* env, jobject self, jstring path);
+JNIEXPORT jfloat JNICALL TENSORFLOW_METHOD(sum)(
+        JNIEnv* env, jobject self, jstring path, jfloat num_a, jfloat num_b);
 
 #ifdef __cplusplus
 }  // extern "C"

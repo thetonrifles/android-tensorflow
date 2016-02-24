@@ -15,7 +15,7 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements DownloadFragment.Callback {
 
-    private static final String FILE_URL = "https://dl.dropboxusercontent.com/u/44270891/data.txt";
+    private static final String FILE_URL = "https://dl.dropboxusercontent.com/u/44270891/graph.pb";
 
     private DownloadFragment mFragment;
 
@@ -50,8 +50,11 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
             public void onClick(View v) {
                 String filename = FileStorage.getInstance().readLastUpdateFileName(context);
                 if (!TextUtils.isEmpty(filename)) {
-                    String model = (new TensorFlow()).loadModel(filename);
-                    Toast.makeText(context, model, Toast.LENGTH_SHORT).show();
+                    float a = 2.0f;
+                    float b = 3.0f;
+                    float c = (new TensorFlow()).sum(filename, a, b);
+                    String message = String.format(getString(R.string.toast_output_sum), a, b, c);
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(context, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
                 }
@@ -90,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     }
 
     @Override
-    public void onDownloadCompleted(String content) {
+    public void onDownloadCompleted() {
         updateLayout(false);
         updateTimestampLabel();
     }

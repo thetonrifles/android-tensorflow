@@ -143,7 +143,7 @@ public class DownloadFragment extends Fragment {
                 if (mCallback != null) {
                     String content = (String) result;
                     FileStorage.getInstance().writeFile(getContext(), mUrl, content);
-                    mCallback.onDownloadCompleted(content);
+                    mCallback.onDownloadCompleted();
                 }
             } else {
                 Log.d(LOG_TAG, "Download failed!");
@@ -161,7 +161,7 @@ public class DownloadFragment extends Fragment {
 
         void onProgress(int percentage);
 
-        void onDownloadCompleted(String content);
+        void onDownloadCompleted();
 
         void onDownloadFailed(Exception ex);
 
