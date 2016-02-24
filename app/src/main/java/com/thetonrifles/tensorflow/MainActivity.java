@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
                 if (!TextUtils.isEmpty(filename)) {
                     float a = 2.0f;
                     float b = 3.0f;
-                    float c = (new TensorFlow()).sum(filename, a, b);
+                    float c = (new TensorFlow()).process(filename, a, b);
                     String message = String.format(getString(R.string.toast_output_sum), a, b, c);
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                 } else {

@@ -6,6 +6,6 @@ public class TensorFlow {
         System.loadLibrary( "tensorflow_jni" );
     }
 
-    public native float sum(String filepath, float a, float b);
+    public native float process(String filepath, float a, float b);
 
 }

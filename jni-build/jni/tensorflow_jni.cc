@@ -17,7 +17,7 @@ static std::unique_ptr<tensorflow::Session> session;
 using namespace tensorflow;
 
 JNIEXPORT jfloat JNICALL
-TENSORFLOW_METHOD(sum)(JNIEnv* env, jobject self, jstring path, jfloat num_a, jfloat num_b) {
+TENSORFLOW_METHOD(process)(JNIEnv* env, jobject self, jstring path, jfloat num_a, jfloat num_b) {
     const char* filepath = env->GetStringUTFChars(path, NULL);
 
     LOG(INFO) << "loading tensorflow model from: " << filepath;
