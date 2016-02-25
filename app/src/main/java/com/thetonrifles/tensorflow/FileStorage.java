@@ -5,6 +5,10 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.thetonrifles.tensorflow.events.ModelUpdatedEvent;
+
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.security.MessageDigest;
@@ -36,6 +40,8 @@ public class FileStorage {
                 writeLastUpdateFileName(context, file.getAbsolutePath());
                 writeLastUpdateTimestamp(context, new Date());
                 Log.d(LOG_TAG, "written file content in cache for: " + url);
+                // updating subscribers
+                EventBus.getDefault().post(new ModelUpdatedEvent());
             } catch (Exception ex) {
                 Log.e(LOG_TAG, ex.getMessage(), ex);
             } finally {

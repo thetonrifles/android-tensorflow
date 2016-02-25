@@ -1,4 +1,4 @@
-package com.thetonrifles.tensorflow.rest;
+package com.thetonrifles.tensorflow.http;
 
 public class HttpResponseException extends Exception {
 

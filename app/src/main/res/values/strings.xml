@@ -1,5 +1,7 @@
 <resources>
 
+    <string name="google_app_id">AIzaSyBd1fLseczTh_L2GNcvPJHxwsYnQt5pVTo</string>
+
     <string name="app_name">Android TF</string>
     <string name="btn_download">Download Model [SDK]</string>
     <string name="btn_read">Read Model [NDK]</string>

@@ -1,6 +1,5 @@
 package com.thetonrifles.tensorflow;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -11,55 +10,32 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.thetonrifles.tensorflow.events.ModelUpdatedEvent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
 import java.util.Date;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements DownloadFragment.Callback {
 
-    private static final String FILE_URL = "https://dl.dropboxusercontent.com/u/44270891/graph.pb";
-
     private DownloadFragment mFragment;
 
-    private ProgressBar mLoader;
-    private Button mDownloadButton;
-    private Button mLoadButton;
-    private TextView mTimestampView;
+    @Bind(R.id.progress) ProgressBar mLoader;
+    @Bind(R.id.btn_download) Button mDownloadButton;
+    @Bind(R.id.btn_read) Button mLoadButton;
+    @Bind(R.id.txt_timestamp) TextView mTimestampView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        final Context context = this;
-
-        mLoader = (ProgressBar) findViewById(R.id.progress);
-        mTimestampView = (TextView) findViewById(R.id.txt_timestamp);
-
-        mDownloadButton = (Button) findViewById(R.id.btn_download);
-        mDownloadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mFragment != null) {
-                    mFragment.executeDownload(FILE_URL);
-                }
-            }
-        });
-
-        mLoadButton = (Button) findViewById(R.id.btn_read);
-        mLoadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String filename = FileStorage.getInstance().readLastUpdateFileName(context);
-                if (!TextUtils.isEmpty(filename)) {
-                    float a = 2.0f;
-                    float b = 3.0f;
-                    float c = (new TensorFlow()).process(filename, a, b);
-                    String message = String.format(getString(R.string.toast_output_sum), a, b, c);
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(context, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
         mLoadButton.setEnabled(FileStorage.getInstance().readLastUpdateTimestamp(this) != null);
 
         updateTimestampLabel();
@@ -69,6 +45,44 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         if (mFragment == null) {
             mFragment = DownloadFragment.newInstance();
             fm.beginTransaction().add(mFragment, "download").commit();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Subscribe
+    public void onEvent(ModelUpdatedEvent event) {
+        updateTimestampLabel();
+    }
+
+    @OnClick(R.id.btn_download)
+    void onDownloadButtonClick() {
+        if (mFragment != null) {
+            mFragment.executeDownload(Params.FILE_URL);
+        }
+    }
+
+    @OnClick(R.id.btn_read)
+    void onInvokeButtonClick() {
+        String filename = FileStorage.getInstance().readLastUpdateFileName(this);
+        if (!TextUtils.isEmpty(filename)) {
+            float a = 2.0f;
+            float b = 3.0f;
+            float c = (new TensorFlow()).process(filename, a, b);
+            String message = String.format(getString(R.string.toast_output_sum), a, b, c);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
         }
     }
 

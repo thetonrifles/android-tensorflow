@@ -1,4 +1,4 @@
-package com.thetonrifles.tensorflow.rest;
+package com.thetonrifles.tensorflow.http;
 
 import android.os.Handler;
 import android.os.Looper;

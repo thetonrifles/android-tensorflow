@@ -5,9 +5,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.thetonrifles.tensorflow.rest.HttpBinaryResponseListener;
-import com.thetonrifles.tensorflow.rest.HttpClient;
-import com.thetonrifles.tensorflow.rest.HttpResponseException;
+import com.thetonrifles.tensorflow.http.HttpBinaryResponseListener;
+import com.thetonrifles.tensorflow.http.HttpClient;
+import com.thetonrifles.tensorflow.http.HttpResponseException;
 
 public class DownloadFragment extends Fragment implements HttpBinaryResponseListener {
 
