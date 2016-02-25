@@ -9,8 +9,12 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URL;
+
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class DownloadFragment extends Fragment {
 
@@ -76,20 +80,19 @@ public class DownloadFragment extends Fragment {
             mUrl = urls[0];
             Object response;
             InputStream input = null;
-            HttpURLConnection connection = null;
             try {
                 URL url = new URL(mUrl);
-                connection = (HttpURLConnection) url.openConnection();
-                connection.connect();
+                OkHttpClient httpClient = new OkHttpClient();
+                Call call = httpClient.newCall(new Request.Builder().url(url).get().build());
+                Response res = call.execute();
                 // successful response?
-                if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                if (res.code() != 200) {
                     // returning negative response details
-                    response = new Exception("http " + connection.getResponseCode()
-                            + " " + connection.getResponseMessage());
+                    response = new Exception("http " + res.code() + " " + res.message());
                 }
                 // getting file length for publishing download progress
-                int fileLength = connection.getContentLength();
-                input = new BufferedInputStream(connection.getInputStream());
+                long fileLength = res.body().contentLength();
+                input = new BufferedInputStream(res.body().byteStream());
                 // building json string from stream
                 StringBuilder sb = new StringBuilder();
                 long total = 0;
@@ -117,9 +120,6 @@ public class DownloadFragment extends Fragment {
                     if (input != null)
                         input.close();
                 } catch (IOException ignored) {
-                }
-                if (connection != null) {
-                    connection.disconnect();
                 }
             }
             return response;
