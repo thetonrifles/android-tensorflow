@@ -10,5 +10,6 @@
     <string name="last_update_value">Last update: %1$s</string>
     <string name="toast_empty_model">Empty or unavailable model</string>
     <string name="toast_output_normalize">Normalization completed (see logcat for details)</string>
+    <string name="toast_output_invalid">Invalid output</string>
 
 </resources>

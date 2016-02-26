@@ -12,6 +12,8 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/session.h"
 
+static const int INPUT_SIZE = 88;
+static const int OUTPUT_SIZE = 48;
 static std::unique_ptr<tensorflow::Session> session;
 
 using namespace tensorflow;
@@ -20,27 +22,102 @@ JNIEXPORT jfloatArray JNICALL
 TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArray input) {
     const char* filepath = env->GetStringUTFChars(path, NULL);
 
-    LOG(INFO) << "loading tensorflow model from: " << filepath;
-
-    int inputLength = 88;
-    int outputLength = 48;
-
     jfloatArray result;
-    result = env->NewFloatArray(outputLength);
+    result = env->NewFloatArray(OUTPUT_SIZE);
     if (result == NULL) {
-        // out of memory error thrown
+        LOG(ERROR) << "out of memory in allocating result";
         return NULL; 
     }
 
-    jfloat* samples = env->GetFloatArrayElements(input, 0);
-    jfloat* normalized = (jfloat*) malloc(inputLength * sizeof(jfloat));
+    LOG(INFO) << "loading tensorflow model from: " << filepath;
 
-    for (int i=0; i<outputLength; i++) {
+    tensorflow::SessionOptions options;
+    tensorflow::ConfigProto& config = options.config;
+    session.reset(tensorflow::NewSession(options));
+    tensorflow::GraphDef graph_def;
+    ReadBinaryProto(Env::Default(), filepath, &graph_def);
+    
+    LOG(INFO) << "graph created";
+
+    tensorflow::Status status = session->Create(graph_def);
+
+    if (!status.ok()) {
+        LOG(ERROR) << "could not create tensorflow graph: " << status;
+        return NULL;
+    }
+
+    LOG(INFO) << "session created";
+
+    graph_def.Clear();
+
+    LOG(INFO) << "running session...";
+
+    jfloat* samples = env->GetFloatArrayElements(input, 0);
+    jfloat* normalized = (jfloat*) malloc(INPUT_SIZE * sizeof(jfloat));
+
+    // building tensor flow input vector (1 row, INPUT_SIZE columns)
+    Tensor input_tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, INPUT_SIZE}));
+    auto input_tensor_mapped = input_tensor.tensor<float, 2>();
+    for(int i = 0; i<INPUT_SIZE; i++) {
+        float value = samples[i];
+        // row = 0, column = value
+        input_tensor_mapped(0, i) = value;
+    }
+
+    std::vector<std::pair<std::string, tensorflow::Tensor>> input_tensors(
+        {{"input", input_tensor}});
+    std::vector<Tensor> output_tensors;
+    std::vector<std::string> output_names({"output"});
+
+    Status run_status = session->Run(input_tensors, output_names, {}, &output_tensors);
+
+    LOG(INFO) << "end computing";
+    if (!run_status.ok()) {
+        LOG(ERROR) << run_status.ToString() << "\n";
+        return NULL;
+    }
+
+    Tensor& output_tensor = output_tensors[0];
+    tensorflow::TTypes<float>::Flat output_flat = output_tensor.flat<float>();
+
+    for(int i=0; i<OUTPUT_SIZE; i++) {
+        const float value = output_flat(i);
+        LOG(INFO) <<  "value[" << i << "]" << value;
+    }
+
+    /*
+
+    Tensor a(tensorflow::DT_FLOAT, tensorflow::TensorShape());
+    a.scalar<float>()() = num_a;
+
+    Tensor b(tensorflow::DT_FLOAT, tensorflow::TensorShape());
+    b.scalar<float>()() = num_b;
+
+    std::vector<std::pair<string, tensorflow::Tensor>> input_tensors = 
+        {{ "a", a }, { "b", b }}; 
+    std::vector<tensorflow::Tensor> output_tensor;
+
+    Status run_status = session->Run(input_tensors, {"c"}, {}, &output_tensor);
+
+    LOG(INFO) << "end computing";
+    if (!run_status.ok()) {
+        LOG(ERROR) << run_status.ToString() << "\n";
+        return -1;
+    }
+
+    auto output = output_tensor[0].scalar<float>();
+    LOG(INFO) << "output: " << output();
+    
+    return (jfloat) output();
+
+    */
+
+    for (int i=0; i<OUTPUT_SIZE; i++) {
         normalized[i] = i;
     }
 
     env->ReleaseFloatArrayElements(input, samples, 0);
-    env->SetFloatArrayRegion(result, 0, outputLength, normalized);
+    env->SetFloatArrayRegion(result, 0, OUTPUT_SIZE, normalized);
     free(normalized);
     return result;
 }

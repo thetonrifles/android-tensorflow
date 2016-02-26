@@ -78,10 +78,14 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         try {
             float[] input = new float[88];
             float[] output = (new ContextDetector(this)).normalize(input);
-            for (int i = 0; i < output.length; i++) {
-                Log.d("Normalization", "[" + i + "] = " + output[i]);
+            if (output != null) {
+                for (int i = 0; i < output.length; i++) {
+                    Log.d("Normalization", "[" + i + "] = " + output[i]);
+                }
+                Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.toast_output_invalid, Toast.LENGTH_SHORT).show();
             }
-            Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
         } catch (UnavailableModelException ex) {
             Log.e(LogTags.LOG_DETECTION, ex.getMessage(), ex);
             Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
