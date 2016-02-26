@@ -3,7 +3,6 @@ package com.thetonrifles.tensorflow;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -11,7 +10,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.thetonrifles.tensorflow.events.ModelUpdatedEvent;
+import com.thetonrifles.detection.ContextDetector;
+import com.thetonrifles.detection.ModelStorage;
+import com.thetonrifles.detection.events.ModelUpdatedEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mLoadButton.setEnabled(FileStorage.getInstance().readLastUpdateTimestamp(this) != null);
+        mLoadButton.setEnabled(ModelStorage.getInstance().readLastUpdateTimestamp(this) != null);
 
         updateTimestampLabel();
 
@@ -70,42 +71,32 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     @OnClick(R.id.btn_download)
     void onDownloadButtonClick() {
         if (mFragment != null) {
-            mFragment.executeDownload(Params.FILE_URL);
+            mFragment.downloadModel();
         }
     }
 
     @OnClick(R.id.btn_process)
     void onInvokeButtonClick() {
-        String filename = FileStorage.getInstance().readLastUpdateFileName(this);
-        if (!TextUtils.isEmpty(filename)) {
-            float a = 2.0f;
-            float b = 3.0f;
-            float c = (new TensorFlow()).process(filename, a, b);
-            String message = String.format(getString(R.string.toast_output_sum), a, b, c);
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
-        }
+        float a = 2.0f;
+        float b = 3.0f;
+        float c = (new ContextDetector(this)).sum(a, b);
+        String message = String.format(getString(R.string.toast_output_sum), a, b, c);
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @OnClick(R.id.btn_normalize)
     void onNormalizeButtonClick() {
-        String filename = FileStorage.getInstance().readLastUpdateFileName(this);
-        if (!TextUtils.isEmpty(filename)) {
-            float[] input = new float[88];
-            float[] output = (new TensorFlow()).normalize(filename, input);
-            for (int i=0; i<output.length; i++) {
-                Log.d("Normalization", "[" + i + "] = " + output[i]);
-            }
-            Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
+        float[] input = new float[88];
+        float[] output = (new ContextDetector(this)).normalize(input);
+        for (int i = 0; i < output.length; i++) {
+            Log.d("Normalization", "[" + i + "] = " + output[i]);
         }
+        Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
     }
 
     private void updateTimestampLabel() {
         String template = getString(R.string.last_update_value);
-        Date timestamp = FileStorage.getInstance().readLastUpdateTimestamp(this);
+        Date timestamp = ModelStorage.getInstance().readLastUpdateTimestamp(this);
         if (timestamp != null) {
             String label = String.format(template, timestamp.toString());
             mTimestampView.setText(label);

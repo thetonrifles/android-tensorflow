@@ -10,7 +10,7 @@ extern "C" {
 //#define LOG_TAG "TensorFlow"
 //#define LOG(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define TENSORFLOW_METHOD(METHOD_NAME) \
-  Java_com_thetonrifles_tensorflow_TensorFlow_##METHOD_NAME  // NOLINT
+  Java_com_thetonrifles_detection_TensorFlowBridge_##METHOD_NAME  // NOLINT
 
 JNIEXPORT jfloat JNICALL TENSORFLOW_METHOD(process)(
         JNIEnv* env, jobject self, jstring path, jfloat num_a, jfloat num_b);

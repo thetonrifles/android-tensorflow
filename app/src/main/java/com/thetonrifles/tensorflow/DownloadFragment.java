@@ -5,15 +5,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.thetonrifles.tensorflow.http.HttpBinaryResponseListener;
-import com.thetonrifles.tensorflow.http.HttpClient;
-import com.thetonrifles.tensorflow.http.HttpResponseException;
+import com.thetonrifles.detection.ModelStorage;
+import com.thetonrifles.detection.Params;
+import com.thetonrifles.detection.http.HttpBinaryResponseListener;
+import com.thetonrifles.detection.http.HttpClient;
+import com.thetonrifles.detection.http.HttpResponseException;
 
 public class DownloadFragment extends Fragment implements HttpBinaryResponseListener {
 
     private static final String LOG_TAG = "Downloader";
 
-    private String mUrl;
     private Callback mCallback;
     private boolean mOnProgress;
 
@@ -47,16 +48,15 @@ public class DownloadFragment extends Fragment implements HttpBinaryResponseList
         outState.putBoolean("progress", mOnProgress);
     }
 
-    public void executeDownload(String url) {
+    public void downloadModel() {
         // download file with async task and use callback
         // for providing data to parent activity
-        mUrl = url;
         mOnProgress = true;
         if (mCallback != null) {
             mCallback.onPrepare();
         }
         HttpClient http = new HttpClient();
-        http.getBinary(url, this);
+        http.getModel(this);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class DownloadFragment extends Fragment implements HttpBinaryResponseList
         Log.d(LOG_TAG, "Download completed!");
         mOnProgress = false;
         if (mCallback != null) {
-            FileStorage.getInstance().writeFile(getContext(), mUrl, content);
+            ModelStorage.getInstance().writeFile(getContext(), Params.MODEL_URL, content);
             mCallback.onDownloadCompleted();
         }
     }

@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.PeriodicTask;
-import com.thetonrifles.tensorflow.model.ModelDownloadService;
+import com.thetonrifles.detection.ContextService;
 
 public class TensorFlowApplication extends Application {
 
@@ -13,7 +13,7 @@ public class TensorFlowApplication extends Application {
         super.onCreate();
 
         // scheduling periodic model download
-        PeriodicTask task = ModelDownloadService.buildModelDownloadTask();
+        PeriodicTask task = ContextService.buildModelDownloadTask();
         GcmNetworkManager.getInstance(this).schedule(task);
     }
 
