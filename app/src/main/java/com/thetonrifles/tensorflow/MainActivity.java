@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -27,7 +28,8 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
 
     @Bind(R.id.progress) ProgressBar mLoader;
     @Bind(R.id.btn_download) Button mDownloadButton;
-    @Bind(R.id.btn_read) Button mLoadButton;
+    @Bind(R.id.btn_process) Button mLoadButton;
+    @Bind(R.id.btn_normalize) Button mNormalizeButton;
     @Bind(R.id.txt_timestamp) TextView mTimestampView;
 
     @Override
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         }
     }
 
-    @OnClick(R.id.btn_read)
+    @OnClick(R.id.btn_process)
     void onInvokeButtonClick() {
         String filename = FileStorage.getInstance().readLastUpdateFileName(this);
         if (!TextUtils.isEmpty(filename)) {
@@ -86,6 +88,21 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         }
     }
 
+    @OnClick(R.id.btn_normalize)
+    void onNormalizeButtonClick() {
+        String filename = FileStorage.getInstance().readLastUpdateFileName(this);
+        if (!TextUtils.isEmpty(filename)) {
+            float[] input = new float[88];
+            float[] output = (new TensorFlow()).normalize(filename, input);
+            for (int i=0; i<output.length; i++) {
+                Log.d("Normalization", "[" + i + "] = " + output[i]);
+            }
+            Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void updateTimestampLabel() {
         String template = getString(R.string.last_update_value);
         Date timestamp = FileStorage.getInstance().readLastUpdateTimestamp(this);
@@ -93,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
             String label = String.format(template, timestamp.toString());
             mTimestampView.setText(label);
             mLoadButton.setEnabled(true);
+            mNormalizeButton.setEnabled(true);
         }
     }
 

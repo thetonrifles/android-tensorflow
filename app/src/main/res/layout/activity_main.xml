@@ -31,12 +31,20 @@
         </RelativeLayout>
 
         <Button
-            android:id="@+id/btn_read"
+            android:id="@+id/btn_process"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
             android:padding="16dp"
             android:text="@string/btn_read" />
+
+        <Button
+            android:id="@+id/btn_normalize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:padding="16dp"
+            android:text="@string/btn_normalize" />
 
     </LinearLayout>
 

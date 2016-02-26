@@ -15,6 +15,9 @@ extern "C" {
 JNIEXPORT jfloat JNICALL TENSORFLOW_METHOD(process)(
         JNIEnv* env, jobject self, jstring path, jfloat num_a, jfloat num_b);
 
+JNIEXPORT jfloatArray JNICALL TENSORFLOW_METHOD(normalize)(
+        JNIEnv* env, jobject self, jstring path, jfloatArray samples);
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif  // __cplusplus

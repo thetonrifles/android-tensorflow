@@ -8,4 +8,6 @@ public class TensorFlow {
 
     public native float process(String filepath, float a, float b);
 
+    public native float[] normalize(String filepath, float[] samples);
+
 }

@@ -16,6 +16,35 @@ static std::unique_ptr<tensorflow::Session> session;
 
 using namespace tensorflow;
 
+JNIEXPORT jfloatArray JNICALL
+TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArray input) {
+    const char* filepath = env->GetStringUTFChars(path, NULL);
+
+    LOG(INFO) << "loading tensorflow model from: " << filepath;
+
+    int inputLength = 88;
+    int outputLength = 48;
+
+    jfloatArray result;
+    result = env->NewFloatArray(outputLength);
+    if (result == NULL) {
+        // out of memory error thrown
+        return NULL; 
+    }
+
+    jfloat* samples = env->GetFloatArrayElements(input, 0);
+    jfloat* normalized = (jfloat*) malloc(inputLength * sizeof(jfloat));
+
+    for (int i=0; i<outputLength; i++) {
+        normalized[i] = i;
+    }
+
+    env->ReleaseFloatArrayElements(input, samples, 0);
+    env->SetFloatArrayRegion(result, 0, outputLength, normalized);
+    free(normalized);
+    return result;
+}
+
 JNIEXPORT jfloat JNICALL
 TENSORFLOW_METHOD(process)(JNIEnv* env, jobject self, jstring path, jfloat num_a, jfloat num_b) {
     const char* filepath = env->GetStringUTFChars(path, NULL);

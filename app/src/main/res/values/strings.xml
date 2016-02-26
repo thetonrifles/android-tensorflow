@@ -5,9 +5,11 @@
     <string name="app_name">Android TF</string>
     <string name="btn_download">Download Model [SDK]</string>
     <string name="btn_read">Read Model [NDK]</string>
+    <string name="btn_normalize">Normalize Samples [NDK]</string>
     <string name="last_update_none">Last update: -</string>
     <string name="last_update_value">Last update: %1$s</string>
     <string name="toast_empty_model">Empty or unavailable model</string>
     <string name="toast_output_sum">%1$f x %2$f = %3$f</string>
+    <string name="toast_output_normalize">Normalization completed (see logcat for details)</string>
 
 </resources>
