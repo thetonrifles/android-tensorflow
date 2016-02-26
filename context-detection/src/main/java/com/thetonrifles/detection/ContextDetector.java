@@ -11,20 +11,12 @@ public class ContextDetector {
         mContext = context;
     }
 
-    public float sum(float a, float b) {
-        String filename = ModelStorage.getInstance().readLastUpdateFileName(mContext);
-        if (!TextUtils.isEmpty(filename)) {
-            return (new TensorFlowBridge()).process(filename, a, b);
-        }
-        throw new IllegalStateException("model not available in storage");
-    }
-
-    public float[] normalize(float[] samples) {
+    public float[] normalize(float[] samples) throws UnavailableModelException {
         String filename = ModelStorage.getInstance().readLastUpdateFileName(mContext);
         if (!TextUtils.isEmpty(filename)) {
             return (new TensorFlowBridge()).normalize(filename, samples);
         }
-        throw new IllegalStateException("model not available in storage");
+        throw new UnavailableModelException();
     }
 
 }

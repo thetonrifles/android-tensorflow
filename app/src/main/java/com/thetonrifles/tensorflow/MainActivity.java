@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.thetonrifles.detection.ContextDetector;
 import com.thetonrifles.detection.ModelStorage;
+import com.thetonrifles.detection.UnavailableModelException;
 import com.thetonrifles.detection.events.ModelUpdatedEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -29,7 +30,6 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
 
     @Bind(R.id.progress) ProgressBar mLoader;
     @Bind(R.id.btn_download) Button mDownloadButton;
-    @Bind(R.id.btn_process) Button mLoadButton;
     @Bind(R.id.btn_normalize) Button mNormalizeButton;
     @Bind(R.id.txt_timestamp) TextView mTimestampView;
 
@@ -38,8 +38,6 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        mLoadButton.setEnabled(ModelStorage.getInstance().readLastUpdateTimestamp(this) != null);
 
         updateTimestampLabel();
 
@@ -75,23 +73,19 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         }
     }
 
-    @OnClick(R.id.btn_process)
-    void onInvokeButtonClick() {
-        float a = 2.0f;
-        float b = 3.0f;
-        float c = (new ContextDetector(this)).sum(a, b);
-        String message = String.format(getString(R.string.toast_output_sum), a, b, c);
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
     @OnClick(R.id.btn_normalize)
     void onNormalizeButtonClick() {
-        float[] input = new float[88];
-        float[] output = (new ContextDetector(this)).normalize(input);
-        for (int i = 0; i < output.length; i++) {
-            Log.d("Normalization", "[" + i + "] = " + output[i]);
+        try {
+            float[] input = new float[88];
+            float[] output = (new ContextDetector(this)).normalize(input);
+            for (int i = 0; i < output.length; i++) {
+                Log.d("Normalization", "[" + i + "] = " + output[i]);
+            }
+            Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
+        } catch (UnavailableModelException ex) {
+            Log.e(LogTags.LOG_DETECTION, ex.getMessage(), ex);
+            Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
         }
-        Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
     }
 
     private void updateTimestampLabel() {
@@ -100,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         if (timestamp != null) {
             String label = String.format(template, timestamp.toString());
             mTimestampView.setText(label);
-            mLoadButton.setEnabled(true);
             mNormalizeButton.setEnabled(true);
         }
     }
@@ -128,11 +121,11 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
 
     private void updateLayout(boolean loading) {
         if (loading) {
-            mDownloadButton.setVisibility(View.GONE);
+            mDownloadButton.setVisibility(View.INVISIBLE);
             mLoader.setVisibility(View.VISIBLE);
         } else {
             mDownloadButton.setVisibility(View.VISIBLE);
-            mLoader.setVisibility(View.GONE);
+            mLoader.setVisibility(View.INVISIBLE);
         }
     }
 
