@@ -12,12 +12,12 @@ android {
     buildTypes {
         debug {
             minifyEnabled false
-            buildConfigField "String", "MODEL_URL", "\"https://dl.dropboxusercontent.com/u/44270891/graph_A.pb\""
+            buildConfigField "String", "MODEL_URL", "\"https://dl.dropboxusercontent.com/u/44270891/model.pb\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled false
-            buildConfigField "String", "MODEL_URL", "\"https://dl.dropboxusercontent.com/u/44270891/graph_A.pb\""
+            buildConfigField "String", "MODEL_URL", "\"https://dl.dropboxusercontent.com/u/44270891/model.pb\""
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
