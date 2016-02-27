@@ -1,11 +1,10 @@
 import tensorflow as tf
-import numpy as np
 
 g = tf.Graph()
 with g.as_default():
     
     x = tf.placeholder(tf.float32, [1, 88], name="input")
-    a = tf.Variable(tf.random_normal([88, 48], mean=-1, stddev=4, dtype=tf.float32), name="a")
+    a = tf.random_normal([88, 48], dtype=tf.float32, name="a") 
     y = tf.matmul(x, a, name="output")
 
     sess = tf.Session()

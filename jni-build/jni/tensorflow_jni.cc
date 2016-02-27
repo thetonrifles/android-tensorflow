@@ -64,11 +64,9 @@ TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArra
         input_tensor_mapped(0, i) = value;
     }
 
-    std::vector<std::pair<std::string, tensorflow::Tensor>> input_tensors = 
-        {{"input", input_tensor}};
     std::vector<tensorflow::Tensor> output_tensors;
 
-    Status run_status = session->Run(input_tensors, {"output"}, {}, &output_tensors); 
+    Status run_status = session->Run({{"input", input_tensor}}, {"output"}, {}, &output_tensors); 
 
     LOG(INFO) << "end computing";
     if (!run_status.ok()) {
