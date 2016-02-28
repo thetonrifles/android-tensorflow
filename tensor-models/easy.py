@@ -2,9 +2,12 @@ import tensorflow as tf
 
 g = tf.Graph()
 with g.as_default():
+
+    cols = 10 #88
+    rows = 5 #48	
     
-    x = tf.placeholder(tf.float32, [1, 88], name="input")
-    a = tf.random_normal([88, 48], dtype=tf.float32, name="a") 
+    x = tf.placeholder(tf.float32, [1, cols], name="input")
+    a = tf.placeholder(tf.float32, [cols, rows], name="a")
     y = tf.matmul(x, a, name="output")
 
     sess = tf.Session()

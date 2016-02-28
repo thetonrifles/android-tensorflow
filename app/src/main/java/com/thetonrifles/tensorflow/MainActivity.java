@@ -19,6 +19,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Date;
+import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -76,13 +77,22 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     @OnClick(R.id.btn_normalize)
     void onNormalizeButtonClick() {
         try {
-            float[] input = new float[88];
+            float[] input = new float[10];
+            for (int i = 0; i<input.length; i++) {
+                input[i] = (new Random()).nextFloat();
+            }
             float[] output = (new ContextDetector(this)).normalize(input);
             if (output != null) {
+                StringBuilder sb = new StringBuilder("[ ");
                 for (int i = 0; i < output.length; i++) {
-                    Log.d("Normalization", "[" + i + "] = " + output[i]);
+                    sb.append(output[i]);
+                    if (i < output.length - 1) {
+                        sb.append(", ");
+                    }
                 }
-                Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
+                sb.append(" ]");
+                Log.d("Normalization", "output = " + sb.toString());
+                Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, R.string.toast_output_invalid, Toast.LENGTH_SHORT).show();
             }

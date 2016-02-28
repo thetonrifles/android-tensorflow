@@ -12,8 +12,8 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/session.h"
 
-static const int INPUT_SIZE = 88;
-static const int OUTPUT_SIZE = 48;
+static const int INPUT_SIZE = 10; //88;
+static const int OUTPUT_SIZE = 5; //48;
 static std::unique_ptr<tensorflow::Session> session;
 
 using namespace tensorflow;
@@ -50,23 +50,36 @@ TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArra
 
     graph_def.Clear();
 
-    LOG(INFO) << "running session...";
+    LOG(INFO) << "building input tensors";
 
     jfloat* samples = env->GetFloatArrayElements(input, 0);
     jfloat* normalized = (jfloat*) malloc(INPUT_SIZE * sizeof(jfloat));
 
-    // building tensor flow input vector (1 row, INPUT_SIZE columns)
-    Tensor input_tensor(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, INPUT_SIZE}));
-    auto input_tensor_mapped = input_tensor.tensor<float, 2>();
+    LOG(INFO) << "matrix x";
+
+    // building tensor flow input vector (1 row, INPUT_SIZE columns) 
+    Tensor x(tensorflow::DT_FLOAT, tensorflow::TensorShape({1, INPUT_SIZE}));
     for(int i = 0; i<INPUT_SIZE; i++) {
         float value = samples[i];
-        // row = 0, column = value
-        input_tensor_mapped(0, i) = value;
+        x.matrix<float>()(0, i) = value;
     }
 
+    LOG(INFO) << "matrix a";
+
+    Tensor a(tensorflow::DT_FLOAT, tensorflow::TensorShape({INPUT_SIZE, OUTPUT_SIZE}));
+    for(int i = 0; i<INPUT_SIZE; i++) {
+        for (int j = 0; j<OUTPUT_SIZE; j++) {
+            float value = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
+            a.matrix<float>()(i, j) = value;
+        }
+    }
+
+    LOG(INFO) << "running session...";
+
+    // declaring output tensor
     std::vector<tensorflow::Tensor> output_tensors;
 
-    Status run_status = session->Run({{"input", input_tensor}}, {"output"}, {}, &output_tensors); 
+    Status run_status = session->Run({{"input", x}, {"a", a}}, {"output"}, {}, &output_tensors);
 
     LOG(INFO) << "end computing";
     if (!run_status.ok()) {
@@ -79,38 +92,7 @@ TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArra
 
     for(int i=0; i<OUTPUT_SIZE; i++) {
         const float value = output_flat(i);
-        LOG(INFO) <<  "value[" << i << "]" << value;
-    }
-
-    /*
-
-    Tensor a(tensorflow::DT_FLOAT, tensorflow::TensorShape());
-    a.scalar<float>()() = num_a;
-
-    Tensor b(tensorflow::DT_FLOAT, tensorflow::TensorShape());
-    b.scalar<float>()() = num_b;
-
-    std::vector<std::pair<string, tensorflow::Tensor>> input_tensors = 
-        {{ "a", a }, { "b", b }}; 
-    std::vector<tensorflow::Tensor> output_tensor;
-
-    Status run_status = session->Run(input_tensors, {"c"}, {}, &output_tensor);
-
-    LOG(INFO) << "end computing";
-    if (!run_status.ok()) {
-        LOG(ERROR) << run_status.ToString() << "\n";
-        return -1;
-    }
-
-    auto output = output_tensor[0].scalar<float>();
-    LOG(INFO) << "output: " << output();
-    
-    return (jfloat) output();
-
-    */
-
-    for (int i=0; i<OUTPUT_SIZE; i++) {
-        normalized[i] = i;
+        normalized[i] = value;
     }
 
     env->ReleaseFloatArrayElements(input, samples, 0);
