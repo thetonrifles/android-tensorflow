@@ -58,7 +58,6 @@ public class HttpClient {
                         // file length is known
                         if (fileLength > 0) {
                             final int progress = (int) (total * 100 / fileLength);
-                            Log.d(LOG_TAG, "downloading... " + progress + "% completed");
                             if (listener != null) {
                                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                                     @Override
@@ -99,12 +98,12 @@ public class HttpClient {
             public void onFailure(Call call, final IOException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 if (listener != null) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
+//                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                        @Override
+//                        public void run() {
                             listener.onFailure(new HttpResponseException(500, e.getMessage()));
-                        }
-                    });
+//                        }
+//                    });
                 }
             }
 

@@ -19,6 +19,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Date;
+import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -76,12 +77,25 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     @OnClick(R.id.btn_normalize)
     void onNormalizeButtonClick() {
         try {
-            float[] input = new float[88];
-            float[] output = (new ContextDetector(this)).normalize(input);
-            for (int i = 0; i < output.length; i++) {
-                Log.d("Normalization", "[" + i + "] = " + output[i]);
+            float[] input = new float[10];
+            for (int i = 0; i<input.length; i++) {
+                input[i] = (new Random()).nextFloat();
             }
-            Toast.makeText(this, R.string.toast_output_normalize, Toast.LENGTH_SHORT).show();
+            float[] output = (new ContextDetector(this)).normalize(input);
+            if (output != null) {
+                StringBuilder sb = new StringBuilder("[ ");
+                for (int i = 0; i < output.length; i++) {
+                    sb.append(output[i]);
+                    if (i < output.length - 1) {
+                        sb.append(", ");
+                    }
+                }
+                sb.append(" ]");
+                Log.d("Normalization", "output = " + sb.toString());
+                Toast.makeText(this, sb.toString(), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, R.string.toast_output_invalid, Toast.LENGTH_SHORT).show();
+            }
         } catch (UnavailableModelException ex) {
             Log.e(LogTags.LOG_DETECTION, ex.getMessage(), ex);
             Toast.makeText(this, R.string.toast_empty_model, Toast.LENGTH_SHORT).show();
