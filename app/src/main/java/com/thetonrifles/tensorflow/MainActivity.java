@@ -11,9 +11,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thetonrifles.detection.ContextDetector;
-import com.thetonrifles.detection.http.ModelStorage;
 import com.thetonrifles.detection.UnavailableModelException;
 import com.thetonrifles.detection.events.ModelUpdatedEvent;
+import com.thetonrifles.detection.http.ModelStorage;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     private DownloadFragment mFragment;
 
     @Bind(R.id.progress) ProgressBar mLoader;
+    @Bind(R.id.txt_remote_path) TextView mUrlView;
     @Bind(R.id.btn_download) Button mDownloadButton;
     @Bind(R.id.btn_normalize) Button mNormalizeButton;
     @Bind(R.id.txt_timestamp) TextView mTimestampView;
@@ -39,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        mUrlView.setText(ModelStorage.getInstance().getModelRemoteUrl(this));
 
         updateTimestampLabel();
 
@@ -70,6 +73,8 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     @OnClick(R.id.btn_download)
     void onDownloadButtonClick() {
         if (mFragment != null) {
+            String url = mUrlView.getText().toString();
+            ModelStorage.getInstance().writeModelRemoteUrl(this, url);
             mFragment.downloadModel();
         }
     }

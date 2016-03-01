@@ -5,8 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.thetonrifles.detection.Params;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -33,12 +31,13 @@ public class HttpClient {
     }
 
     public void getModel(HttpBinaryResponseListener listener, HttpHeader... headers) {
-        getBinary(Params.MODEL_URL, listener, headers);
+        String url = ModelStorage.getInstance().getModelRemoteUrl(mContext);
+        getBinary(url, listener, headers);
     }
 
     public HttpBinaryResponse getModel(HttpHeader... headers) {
-        File target = ModelStorage.getInstance().getModelFile(mContext, Params.MODEL_URL);
-        return getBinary(Params.MODEL_URL, headers);
+        String url = ModelStorage.getInstance().getModelRemoteUrl(mContext);
+        return getBinary(url, headers);
     }
 
     private HttpBinaryResponse getBinary(String url, HttpHeader... headers) {
@@ -127,7 +126,8 @@ public class HttpClient {
 
     private File writeFile(BufferedSource source) throws IOException {
         // building file to write and getting absolute path
-        File file = ModelStorage.getInstance().getModelFile(mContext, Params.MODEL_URL);
+        String url = ModelStorage.getInstance().getModelRemoteUrl(mContext);
+        File file = ModelStorage.getInstance().getModelFile(mContext, url);
         String filename = file.getAbsolutePath();
         // writing file
         BufferedSink sink = Okio.buffer(Okio.sink(file));

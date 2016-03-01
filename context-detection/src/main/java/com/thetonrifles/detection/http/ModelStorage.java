@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.thetonrifles.detection.BuildConfig;
+
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -73,6 +75,16 @@ public class ModelStorage {
     protected synchronized void writeLastUpdateTimestamp(Context context, Date timestamp) {
         SharedPreferences prefs = context.getSharedPreferences("storage", Context.MODE_PRIVATE);
         prefs.edit().putLong("timestamp", timestamp.getTime()).apply();
+    }
+
+    public synchronized String getModelRemoteUrl(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("storage", Context.MODE_PRIVATE);
+        return prefs.getString("url", BuildConfig.MODEL_URL);
+    }
+
+    public synchronized void writeModelRemoteUrl(Context context, String url) {
+        SharedPreferences prefs = context.getSharedPreferences("storage", Context.MODE_PRIVATE);
+        prefs.edit().putString("url", url).apply();
     }
 
 }
