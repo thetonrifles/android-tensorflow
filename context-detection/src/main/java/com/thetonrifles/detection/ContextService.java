@@ -7,21 +7,22 @@ import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 import com.google.android.gms.gcm.TaskParams;
-import com.thetonrifles.detection.http.HttpBinaryResponseListener;
-import com.thetonrifles.detection.http.HttpClient;
+import com.thetonrifles.detection.events.ModelUpdatedEvent;
 import com.thetonrifles.detection.http.HttpResponseException;
+import com.thetonrifles.detection.http.HttpResponseListener;
 
-import java.io.File;
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.concurrent.TimeUnit;
 
-public class ContextService extends GcmTaskService implements HttpBinaryResponseListener {
+public class ContextService extends GcmTaskService implements HttpResponseListener {
 
     private static final String LOG_TAG = "Downloader";
 
     @Override
     public int onRunTask(TaskParams taskParams) {
-        HttpClient http = new HttpClient(this);
-        http.getModel(this);
+        ContextDetector detector = new ContextDetector(this);
+        detector.getModel(this);
         return GcmNetworkManager.RESULT_SUCCESS;
     }
 
@@ -29,14 +30,15 @@ public class ContextService extends GcmTaskService implements HttpBinaryResponse
         return new PeriodicTask.Builder()
                 .setTag("sync.model")
                 .setService(ContextService.class)
-                .setPeriod(TimeUnit.MINUTES.toSeconds(15))
+                .setPeriod(TimeUnit.SECONDS.toSeconds(10))
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                 .build();
     }
 
     @Override
-    public void onSuccess(File file) {
+    public void onSuccess() {
         Log.d(LOG_TAG, "Download completed!");
+        EventBus.getDefault().post(new ModelUpdatedEvent());
     }
 
     @Override

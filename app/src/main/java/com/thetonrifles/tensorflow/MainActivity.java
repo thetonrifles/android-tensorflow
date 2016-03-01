@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.thetonrifles.detection.ContextDetector;
 import com.thetonrifles.detection.UnavailableModelException;
 import com.thetonrifles.detection.events.ModelUpdatedEvent;
-import com.thetonrifles.detection.http.ModelStorage;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -27,6 +26,7 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements DownloadFragment.Callback {
 
+    private ContextDetector mContextDetector;
     private DownloadFragment mFragment;
 
     @Bind(R.id.progress) ProgressBar mLoader;
@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mUrlView.setText(ModelStorage.getInstance().getModelRemoteUrl(this));
+        mContextDetector = new ContextDetector(this);
 
         updateTimestampLabel();
 
@@ -74,8 +74,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     void onDownloadButtonClick() {
         if (mFragment != null) {
             String url = mUrlView.getText().toString();
-            ModelStorage.getInstance().writeModelRemoteUrl(this, url);
-            mFragment.downloadModel();
+            mFragment.downloadModel(url);
         }
     }
 
@@ -108,10 +107,11 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     }
 
     private void updateTimestampLabel() {
+        ContextDetector.ModelInfo info = mContextDetector.readModelInfo();
         String template = getString(R.string.last_update_value);
-        Date timestamp = ModelStorage.getInstance().readLastUpdateTimestamp(this);
-        if (timestamp != null) {
-            String label = String.format(template, timestamp.toString());
+        mUrlView.setText(info.getRemoteUrl());
+        if (info.getLastUpdate() > 0l) {
+            String label = String.format(template, new Date(info.getLastUpdate()));
             mTimestampView.setText(label);
             mNormalizeButton.setEnabled(true);
         }
