@@ -52,7 +52,7 @@ public class HttpBinaryDownloader {
                         sink.writeAll(response.body().source());
                         sink.close();
                         handleSuccess();
-                    } catch (IOException ex) {
+                    } catch (Exception ex) {
                         Log.e(LOG_TAG, ex.getMessage(), ex);
                         handleFailure(ex);
                     }
