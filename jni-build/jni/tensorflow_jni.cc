@@ -12,8 +12,8 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/session.h"
 
-static const int INPUT_SIZE = 10; //88;
-static const int OUTPUT_SIZE = 5; //48;
+static const int INPUT_SIZE = 10;
+static const int OUTPUT_SIZE = 5;
 static std::unique_ptr<tensorflow::Session> session;
 
 using namespace tensorflow;
@@ -46,9 +46,11 @@ TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArra
         return NULL;
     }
 
+    //LOG(INFO) << graph_def;
+
     LOG(INFO) << "session created";
 
-    graph_def.Clear();
+    //graph_def.Clear();
 
     LOG(INFO) << "building input tensors";
 
@@ -64,22 +66,12 @@ TENSORFLOW_METHOD(normalize)(JNIEnv* env, jobject self, jstring path, jfloatArra
         x.matrix<float>()(0, i) = value;
     }
 
-    LOG(INFO) << "matrix a";
-
-    Tensor a(tensorflow::DT_FLOAT, tensorflow::TensorShape({INPUT_SIZE, OUTPUT_SIZE}));
-    for(int i = 0; i<INPUT_SIZE; i++) {
-        for (int j = 0; j<OUTPUT_SIZE; j++) {
-            float value = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX/10.0f));
-            a.matrix<float>()(i, j) = value;
-        }
-    }
-
     LOG(INFO) << "running session...";
 
     // declaring output tensor
     std::vector<tensorflow::Tensor> output_tensors;
 
-    Status run_status = session->Run({{"input", x}, {"a", a}}, {"output"}, {}, &output_tensors);
+    Status run_status = session->Run({{"in_vector", x}}, {"out_vector"}, {}, &output_tensors); 
 
     LOG(INFO) << "end computing";
     if (!run_status.ok()) {
