@@ -27,7 +27,7 @@ public class ContextService extends GcmTaskService implements HttpResponseListen
         return new PeriodicTask.Builder()
                 .setTag("sync.model")
                 .setService(ContextService.class)
-                .setPeriod(TimeUnit.SECONDS.toSeconds(10))
+                .setPeriod(TimeUnit.MINUTES.toSeconds(60))
                 .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
                 .build();
     }
