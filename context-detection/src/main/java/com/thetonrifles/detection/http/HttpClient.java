@@ -1,30 +1,34 @@
 package com.thetonrifles.detection.http;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
 import com.thetonrifles.detection.Params;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
 
 public class HttpClient {
 
     private static final String LOG_TAG = "HttpClient";
 
+    private Context mContext;
     private OkHttpClient mHttp;
 
-    public HttpClient() {
+    public HttpClient(Context context) {
+        mContext = context;
         mHttp = new OkHttpClient();
     }
 
@@ -33,12 +37,18 @@ public class HttpClient {
     }
 
     public HttpBinaryResponse getModel(HttpHeader... headers) {
+        File target = ModelStorage.getInstance().getModelFile(mContext, Params.MODEL_URL);
         return getBinary(Params.MODEL_URL, headers);
     }
 
+    private HttpBinaryResponse getBinary(String url, HttpHeader... headers) {
+        Log.i(LOG_TAG, "GET URL " + url);
+        Call call = buildGetCall(url, headers);
+        return buildBinaryResponse(call);
+    }
+
     private void getBinary(
-            final String url, final HttpBinaryResponseListener listener,
-            final HttpHeader... headers) {
+            final String url, final HttpBinaryResponseListener listener, final HttpHeader... headers) {
         Log.i(LOG_TAG, "GET URL " + url);
         Call call = buildGetCall(url, headers);
         call.enqueue(new Callback() {
@@ -46,37 +56,16 @@ public class HttpClient {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
                 if (response.isSuccessful()) {
-                    final long fileLength = response.body().contentLength();
-                    BufferedInputStream input = new BufferedInputStream(response.body().byteStream());
-                    StringBuilder sb = new StringBuilder();
-                    long total = 0;
-                    int b;
-                    while ((b = input.read()) != -1) {
-                        total += 1;
-                        sb.append((char) b);
-                        // publishing progress if
-                        // file length is known
-                        if (fileLength > 0) {
-                            final int progress = (int) (total * 100 / fileLength);
-                            if (listener != null) {
-                                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.onProgress(progress);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                    String result = sb.toString();
+                    final File file = writeFile(response.body().source());
                     if (listener != null) {
-                        final byte[] bytes = result.getBytes();
-                        final String content = result;
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                listener.onSuccess(content);
-                                listener.onSuccess(bytes);
+                                if (file != null) {
+                                    listener.onSuccess(file);
+                                } else {
+                                    listener.onFailure(new HttpResponseException(500, "internal error"));
+                                }
                             }
                         });
                     }
@@ -98,21 +87,16 @@ public class HttpClient {
             public void onFailure(Call call, final IOException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 if (listener != null) {
-//                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-//                        @Override
-//                        public void run() {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
                             listener.onFailure(new HttpResponseException(500, e.getMessage()));
-//                        }
-//                    });
+                        }
+                    });
                 }
             }
 
         });
-    }
-
-    private HttpBinaryResponse getBinary(String url, HttpHeader... headers) {
-        Call call = buildGetCall(url, headers);
-        return buildBinaryResponse(call);
     }
 
     private Call buildGetCall(String url, HttpHeader... reqHeaders) {
@@ -123,19 +107,13 @@ public class HttpClient {
         return executeCall(builder, reqHeaders);
     }
 
-    protected HttpBinaryResponse buildBinaryResponse(Call call) {
+    private HttpBinaryResponse buildBinaryResponse(Call call) {
         Response response = null;
         try {
             response = call.execute();
             if (response.isSuccessful()) {
-                InputStream in = response.body().byteStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                String result, line = reader.readLine();
-                result = line;
-                while ((line = reader.readLine()) != null) {
-                    result += line;
-                }
-                return HttpBinaryResponse.success(result.getBytes());
+                File file = writeFile(response.body().source());
+                return HttpBinaryResponse.success(file);
             } else {
                 return HttpBinaryResponse.failure(new HttpResponseException(
                         response.code(), response.message()));
@@ -145,6 +123,20 @@ public class HttpClient {
             int code = (response != null) ? response.code() : 500;
             return HttpBinaryResponse.failure(new HttpResponseException(code, ex.getMessage()));
         }
+    }
+
+    private File writeFile(BufferedSource source) throws IOException {
+        // building file to write and getting absolute path
+        File file = ModelStorage.getInstance().getModelFile(mContext, Params.MODEL_URL);
+        String filename = file.getAbsolutePath();
+        // writing file
+        BufferedSink sink = Okio.buffer(Okio.sink(file));
+        sink.writeAll(source);
+        sink.close();
+        // updating storage
+        ModelStorage.getInstance().writeLastUpdateFileName(mContext, filename);
+        ModelStorage.getInstance().writeLastUpdateTimestamp(mContext, new Date());
+        return file;
     }
 
     protected Call executeCall(Request.Builder builder, HttpHeader... reqHeaders) {

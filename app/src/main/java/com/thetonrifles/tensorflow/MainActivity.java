@@ -11,7 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thetonrifles.detection.ContextDetector;
-import com.thetonrifles.detection.ModelStorage;
+import com.thetonrifles.detection.http.ModelStorage;
 import com.thetonrifles.detection.UnavailableModelException;
 import com.thetonrifles.detection.events.ModelUpdatedEvent;
 
@@ -114,11 +114,6 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
 
     @Override
     public void onPrepare() {
-        updateLayout(true);
-    }
-
-    @Override
-    public void onProgress(int percentage) {
         updateLayout(true);
     }
 
