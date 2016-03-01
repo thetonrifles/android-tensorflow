@@ -1,5 +1,9 @@
 package com.thetonrifles.tensorflow;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +17,6 @@ import android.widget.Toast;
 import com.thetonrifles.detection.ContextDetector;
 import com.thetonrifles.detection.ModelInfo;
 import com.thetonrifles.detection.UnavailableModelException;
-import com.thetonrifles.detection.events.ModelUpdatedEvent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 
 import java.util.Date;
 import java.util.Random;
@@ -27,7 +27,6 @@ import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity implements DownloadFragment.Callback {
 
-    private ContextDetector mContextDetector;
     private DownloadFragment mFragment;
 
     @Bind(R.id.progress) ProgressBar mLoader;
@@ -36,13 +35,18 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     @Bind(R.id.btn_normalize) Button mNormalizeButton;
     @Bind(R.id.txt_timestamp) TextView mTimestampView;
 
+    private BroadcastReceiver mModelUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateTimestampLabel();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-        mContextDetector = new ContextDetector(this);
 
         updateTimestampLabel();
 
@@ -55,20 +59,15 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mModelUpdateReceiver, new IntentFilter(BuildConfig.APPLICATION_ID + ".action.MODEL_UPDATE"));
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Subscribe
-    public void onEvent(ModelUpdatedEvent event) {
-        updateTimestampLabel();
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mModelUpdateReceiver);
     }
 
     @OnClick(R.id.btn_download)

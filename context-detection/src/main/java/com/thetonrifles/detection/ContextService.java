@@ -1,5 +1,6 @@
 package com.thetonrifles.detection;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GcmNetworkManager;
@@ -7,10 +8,7 @@ import com.google.android.gms.gcm.GcmTaskService;
 import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 import com.google.android.gms.gcm.TaskParams;
-import com.thetonrifles.detection.events.ModelUpdatedEvent;
 import com.thetonrifles.detection.http.HttpResponseListener;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.TimeUnit;
 
@@ -37,7 +35,8 @@ public class ContextService extends GcmTaskService implements HttpResponseListen
     @Override
     public void onSuccess() {
         Log.d(LOG_TAG, "Download completed!");
-        EventBus.getDefault().post(new ModelUpdatedEvent());
+        Intent intent = new Intent(getApplicationContext().getPackageName() + ".action.MODEL_UPDATE");
+        sendBroadcast(intent, getApplicationContext().getPackageName() + ".permission.MODEL_UPDATE");
     }
 
     @Override
