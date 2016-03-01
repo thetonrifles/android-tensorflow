@@ -1,24 +1,26 @@
 package com.thetonrifles.detection.http;
 
+import java.io.File;
+
 public class HttpBinaryResponse {
 
     private boolean mSuccess;
 
-    private byte[] mResponse;
+    private File mFile;
 
     private HttpResponseException mException;
 
-    public static HttpBinaryResponse success(byte[] response) {
-        return new HttpBinaryResponse(response);
+    public static HttpBinaryResponse success(File file) {
+        return new HttpBinaryResponse(file);
     }
 
     public static HttpBinaryResponse failure(HttpResponseException ex) {
         return new HttpBinaryResponse(ex);
     }
 
-    private HttpBinaryResponse(byte[] response) {
+    private HttpBinaryResponse(File file) {
         mSuccess = true;
-        mResponse = response;
+        mFile = file;
     }
 
     private HttpBinaryResponse(HttpResponseException ex) {
@@ -34,7 +36,7 @@ public class HttpBinaryResponse {
         return mException;
     }
 
-    public byte[] getResponse() {
-        return mResponse;
+    public File getResponse() {
+        return mFile;
     }
 }

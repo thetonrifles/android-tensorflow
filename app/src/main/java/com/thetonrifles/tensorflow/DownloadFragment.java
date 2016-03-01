@@ -5,11 +5,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import com.thetonrifles.detection.ModelStorage;
-import com.thetonrifles.detection.Params;
 import com.thetonrifles.detection.http.HttpBinaryResponseListener;
 import com.thetonrifles.detection.http.HttpClient;
 import com.thetonrifles.detection.http.HttpResponseException;
+
+import java.io.File;
 
 public class DownloadFragment extends Fragment implements HttpBinaryResponseListener {
 
@@ -55,28 +55,15 @@ public class DownloadFragment extends Fragment implements HttpBinaryResponseList
         if (mCallback != null) {
             mCallback.onPrepare();
         }
-        HttpClient http = new HttpClient();
+        HttpClient http = new HttpClient(getContext());
         http.getModel(this);
     }
 
     @Override
-    public void onProgress(int progress) {
-        Log.d(LOG_TAG, "downloading... " + progress + "% completed");
-        if (mCallback != null) {
-            mCallback.onProgress(progress);
-        }
-    }
-
-    @Override
-    public void onSuccess(byte[] bytes) {
-    }
-
-    @Override
-    public void onSuccess(String content) {
+    public void onSuccess(File file) {
         Log.d(LOG_TAG, "Download completed!");
         mOnProgress = false;
         if (mCallback != null) {
-            ModelStorage.getInstance().writeFile(getContext(), Params.MODEL_URL, content);
             mCallback.onDownloadCompleted();
         }
     }
@@ -93,8 +80,6 @@ public class DownloadFragment extends Fragment implements HttpBinaryResponseList
     public interface Callback {
 
         void onPrepare();
-
-        void onProgress(int percentage);
 
         void onDownloadCompleted();
 

@@ -1,12 +1,10 @@
 package com.thetonrifles.detection.http;
 
+import java.io.File;
+
 public interface HttpBinaryResponseListener {
 
-	void onProgress(int progress);
-
-	void onSuccess(byte[] bytes);
-
-	void onSuccess(String content);
+	void onSuccess(File file);
 
 	void onFailure(HttpResponseException ex);
 

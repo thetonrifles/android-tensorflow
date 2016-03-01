@@ -11,6 +11,7 @@ import com.thetonrifles.detection.http.HttpBinaryResponseListener;
 import com.thetonrifles.detection.http.HttpClient;
 import com.thetonrifles.detection.http.HttpResponseException;
 
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 public class ContextService extends GcmTaskService implements HttpBinaryResponseListener {
@@ -19,7 +20,7 @@ public class ContextService extends GcmTaskService implements HttpBinaryResponse
 
     @Override
     public int onRunTask(TaskParams taskParams) {
-        HttpClient http = new HttpClient();
+        HttpClient http = new HttpClient(this);
         http.getModel(this);
         return GcmNetworkManager.RESULT_SUCCESS;
     }
@@ -34,17 +35,8 @@ public class ContextService extends GcmTaskService implements HttpBinaryResponse
     }
 
     @Override
-    public void onProgress(int progress) {
-    }
-
-    @Override
-    public void onSuccess(byte[] bytes) {
-    }
-
-    @Override
-    public void onSuccess(String content) {
+    public void onSuccess(File file) {
         Log.d(LOG_TAG, "Download completed!");
-        ModelStorage.getInstance().writeFile(this, Params.MODEL_URL, content);
     }
 
     @Override

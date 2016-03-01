@@ -3,6 +3,8 @@ package com.thetonrifles.detection;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.thetonrifles.detection.http.ModelStorage;
+
 public class ContextDetector {
 
     private Context mContext;

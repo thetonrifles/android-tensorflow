@@ -1,20 +1,22 @@
 import tensorflow as tf
 
-g = tf.Graph()
-with g.as_default():
+a = tf.Variable(tf.random_normal([10, 5], dtype=tf.float32), name="a")
 
-    cols = 10 #88
-    rows = 5 #48	
-    
-    x = tf.placeholder(tf.float32, [1, cols], name="input")
-    a = tf.placeholder(tf.float32, [cols, rows], name="a")
-    y = tf.matmul(x, a, name="output")
+s = tf.Session()
+s.run(tf.initialize_all_variables())
 
-    sess = tf.Session()
+a_eval = a.eval(s)
+s.close()
 
-    init = tf.initialize_all_variables();
-    sess.run(init)
-    
+with tf.Graph().as_default() as g:
+
+    x = tf.placeholder(tf.float32, [1, 10], name="in_matrix")
+    a_const = tf.constant(a_eval, name="const_a") 
+    y = tf.matmul(x, a_const, name="out_matrix")
+
+    s = tf.Session()
+    s.run(tf.initialize_all_variables())
+
     graph_def = g.as_graph_def()
 
-    tf.train.write_graph(graph_def, 'models/', 'model.pb', as_text=False)	
+    tf.train.write_graph(graph_def, 'models/', 'model.pb', as_text=False)
