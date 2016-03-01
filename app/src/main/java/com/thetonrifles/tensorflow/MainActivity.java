@@ -11,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.thetonrifles.detection.ContextDetector;
+import com.thetonrifles.detection.ModelInfo;
 import com.thetonrifles.detection.UnavailableModelException;
 import com.thetonrifles.detection.events.ModelUpdatedEvent;
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements DownloadFragment.
     }
 
     private void updateTimestampLabel() {
-        ContextDetector.ModelInfo info = mContextDetector.readModelInfo();
+        ModelInfo info = ModelInfo.get(this);
         String template = getString(R.string.last_update_value);
         mUrlView.setText(info.getRemoteUrl());
         if (info.getLastUpdate() > 0l) {

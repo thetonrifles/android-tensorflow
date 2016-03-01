@@ -4,6 +4,6 @@ public interface HttpResponseListener {
 
 	void onSuccess();
 
-	void onFailure(HttpResponseException ex);
+	void onFailure(Exception ex);
 
 }

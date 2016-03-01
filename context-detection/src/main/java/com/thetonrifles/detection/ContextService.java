@@ -8,7 +8,6 @@ import com.google.android.gms.gcm.PeriodicTask;
 import com.google.android.gms.gcm.Task;
 import com.google.android.gms.gcm.TaskParams;
 import com.thetonrifles.detection.events.ModelUpdatedEvent;
-import com.thetonrifles.detection.http.HttpResponseException;
 import com.thetonrifles.detection.http.HttpResponseListener;
 
 import org.greenrobot.eventbus.EventBus;
@@ -42,7 +41,7 @@ public class ContextService extends GcmTaskService implements HttpResponseListen
     }
 
     @Override
-    public void onFailure(HttpResponseException ex) {
+    public void onFailure(Exception ex) {
         Log.e(LOG_TAG, "Download failed!");
     }
 

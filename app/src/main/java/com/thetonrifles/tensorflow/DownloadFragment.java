@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.thetonrifles.detection.ContextDetector;
-import com.thetonrifles.detection.http.HttpResponseException;
 import com.thetonrifles.detection.http.HttpResponseListener;
 
 public class DownloadFragment extends Fragment implements HttpResponseListener {
@@ -67,7 +66,7 @@ public class DownloadFragment extends Fragment implements HttpResponseListener {
     }
 
     @Override
-    public void onFailure(HttpResponseException ex) {
+    public void onFailure(Exception ex) {
         Log.e(LOG_TAG, "Download failed!");
         mOnProgress = false;
         if (mCallback != null) {
